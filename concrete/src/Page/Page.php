@@ -1135,6 +1135,18 @@ class Page extends Collection implements CategoryMemberInterface,
 
         return $icon;
     }
+    /**
+     * Is this page an external link not alias?
+     *
+     * @return bool
+     */
+    public function isExternalNotAlias()
+    {
+        if($this->getCollectionPointerID() > 0){
+            return false;
+        }
+        return $this->cPointerExternalLink != null;
+    }
 
     /**
      * Remove an external link/alias.
@@ -1146,7 +1158,7 @@ class Page extends Collection implements CategoryMemberInterface,
         $pe = new DeletePageEvent($this);
         Events::dispatch('on_page_alias_delete', $pe);
 
-        if ($this->isExternalLink()) {
+        if ($this->isExternalNotAlias()) {
             $this->delete();
         } elseif ($this->isAliasPage()) {
             $cIDRedir = $this->getCollectionPointerID();
