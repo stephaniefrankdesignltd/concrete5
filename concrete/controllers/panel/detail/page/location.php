@@ -80,6 +80,8 @@ class Location extends BackendInterfacePageController
                 if ($this->page->isLocaleHomePage()) {
                     throw new Exception('You cannot move the homepage.');
                 }
+                //move loactioan out of trash fix
+                $isPageInTrash =  $this->page->isInTrash();
                 $dc = Page::getByID($_POST['cParentID'], 'RECENT');
                 if (!is_object($dc) || $dc->isError()) {
                     throw new Exception('Invalid parent page.');
@@ -126,7 +128,15 @@ class Location extends BackendInterfacePageController
                 throw new Exception('You cannot change the canonical path of the home page.');
             }
 
-            if (is_array($pathArray)) {
+            //move page out of trash fix
+            if ($isPageInTrash and $nc){  
+                $ncPath = $nc->getCollectionPath();
+                $p = new PagePath();
+                $p->setPagePath('/'.trim($ncPath, '/'));
+                $p->setPageObject($nc);
+                $p->setPagePathIsCanonical(true);
+                \ORM::entityManager()->persist($p);
+            }elseif (is_array($pathArray)) {
                 foreach ($pathArray as $i => $path) {
                     if ($path) {
                         $p = new PagePath();
